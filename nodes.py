@@ -183,7 +183,7 @@ class ModelScopeT2VLoader:
     def INPUT_TYPES(s):
         return {
             "required": {
-                "model_path": (os.listdir(model_dir_path), ),
+                "model_path": (folder_paths.get_filename_list("checkpoints"), ),
                 "enable_attn": ("BOOLEAN", {"default": True}, ),
                 "enable_conv": ("BOOLEAN", {"default": True}, ),
                 "temporal_attn_strength": ("FLOAT", {"default": 1.0, "min": 0., "max": 1., "step": 0.1}, ),
@@ -206,22 +206,21 @@ class ModelScopeT2VLoader:
         temporal_conv_strength=1.0,
         sd_15_model=None
     ):
-        model_path = os.path.join(model_dir_path, model_path)
-        
-        if os.path.exists(model_path):
-            load_modelscope_dict = comfy.utils.load_torch_file(model_path)
-            sd_dict, modelscope_state_dict = check_and_apply_keys(load_modelscope_dict, sd_15_model)
-            model = load_modelscope_checkpoint(
-                sd_dict, 
-                modelscope_state_dict, 
-                ckpt_path=None, 
-                output_model=True,
-                enable_attn=enable_attn,
-                enable_conv=enable_conv,
-                temporal_attn_strength=temporal_attn_strength,
-                temporal_conv_strength=temporal_conv_strength,
-                sd_15_model=sd_15_model
-            )
+        ckpt_path = folder_paths.get_full_path("checkpoints", model_path)
+
+        load_modelscope_dict = comfy.utils.load_torch_file(ckpt_path)
+        sd_dict, modelscope_state_dict = check_and_apply_keys(load_modelscope_dict, sd_15_model)
+        model = load_modelscope_checkpoint(
+            sd_dict,
+            modelscope_state_dict,
+            ckpt_path=None,
+            output_model=True,
+            enable_attn=enable_attn,
+            enable_conv=enable_conv,
+            temporal_attn_strength=temporal_attn_strength,
+            temporal_conv_strength=temporal_conv_strength,
+            sd_15_model=sd_15_model
+        )
 
         return (model, )
 
